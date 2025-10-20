@@ -26,3 +26,5 @@ app.MapControllers(); // this uses dotnet reflection to scan you application and
 // - Call the GetAllVendors method
 
 app.Run();
+
+public partial class Program;
