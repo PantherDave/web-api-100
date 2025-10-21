@@ -23,6 +23,12 @@ public class VendorsController: ControllerBase
         };
         return StatusCode(201, response);
     }
+
+    [HttpGet("/vendors/{id:Guid}")]
+    public async Task<ActionResult> GetVendorByIdAsync(Guid id)
+    {
+        return BadRequest();
+    }
 }
 
 public record VendorPointOfContact
