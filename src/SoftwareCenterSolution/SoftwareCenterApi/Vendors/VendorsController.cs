@@ -71,7 +71,7 @@ public record VendorPointOfContact
     public string Phone { get; set; } = string.Empty;
 }
 
-// 
+// this represents what we are expecting from the client on the POST /vendors
 public record VendorCreateModel 
 {
     public string Name { get; set; } = string.Empty;
