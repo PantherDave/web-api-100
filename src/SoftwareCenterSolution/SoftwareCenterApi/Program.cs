@@ -1,4 +1,5 @@
 using Marten;
+using SoftwareCenterApi.Vendors.Models;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -28,6 +29,10 @@ builder.Services.AddMarten(config =>
 }).UseLightweightSessions();
 // It will provide an object that implements a context class.
 // IDocumentSession
+
+// AddScoped = One Per HttpRequest
+//builder.Services.AddScoped<VendorCreateModelValidator>();
+builder.Services.AddVendorServices();
 
 
 var app = builder.Build();

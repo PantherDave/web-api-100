@@ -1,9 +1,13 @@
-﻿using Marten;
+﻿using System.ComponentModel.DataAnnotations;
+using Marten;
+using SoftwareCenterApi.Vendors.Entities;
+using SoftwareCenterApi.Vendors.Models;
 
 namespace SoftwareCenterApi.Vendors;
 
 // When we get a GET request to "/vendors", we want this controller to be created, and
 // a specific method on this controller to handle providing the response for the request
+[ApiController]
 public class VendorsController(IDocumentSession session): ControllerBase
 {
     [HttpGet("/vendors")]
@@ -14,10 +18,17 @@ public class VendorsController(IDocumentSession session): ControllerBase
 
     [HttpPost("/vendors")]
     public async Task<ActionResult> AddVendorAsync(
-        [FromBody] VendorCreateModel model
+        [FromBody] VendorCreateModel model,
+        [FromServices] VendorCreateModelValidator validator
         ) 
     {
         // TODO: Validate the inputs, check auth all that stuff
+        var validations = await validator.ValidateAsync(model);
+
+        if (!validations.IsValid)
+        {
+            return BadRequest();
+        }
 
         //store the data somewhere
 
@@ -64,33 +75,4 @@ public class VendorsController(IDocumentSession session): ControllerBase
     }
 }
 
-public record VendorPointOfContact
-{ 
-    public string Name { get; set; } = string.Empty;
-    public string Email { get; set; } = string.Empty;
-    public string Phone { get; set; } = string.Empty;
-}
-
-// this represents what we are expecting from the client on the POST /vendors
-public record VendorCreateModel 
-{
-    public string Name { get; set; } = string.Empty;
-    public VendorPointOfContact PointOfContact { get; set; } = new();
-}
-
-// what I am returning to the caller on the POST and the GET /vendors/{id}
-public record VendorDetailsModel 
-{
-    public Guid Id { get; set; }
-    public string Name { get; set; } = string.Empty;
-    public VendorPointOfContact PointOfContact { get; set; } = new();
-}
-
-// what I'm actually storing in the db
-public class VendorEntity
-{
-    public Guid Id { get; set; }
-    public string Name { get; set; } = string.Empty;
-    public VendorPointOfContact PointOfContact { get; set; } = new();
-    // who created this?
-}
+// POST /user/vaction-requests
