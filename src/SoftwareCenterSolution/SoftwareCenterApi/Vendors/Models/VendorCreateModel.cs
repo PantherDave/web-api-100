@@ -12,7 +12,7 @@ public record VendorCreateModel
     public VendorPointOfContact PointOfContact { get; set; } = new();
 }
 
-public class VendorCreateModelValidator: AbstractValidator<VendorDetailsModel>
+public class VendorCreateModelValidator: AbstractValidator<VendorCreateModel>
 {
     public VendorCreateModelValidator()
     {
