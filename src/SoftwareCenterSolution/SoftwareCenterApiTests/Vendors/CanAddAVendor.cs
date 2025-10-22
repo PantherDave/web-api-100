@@ -5,8 +5,11 @@ using System.Text;
 using System.Threading.Tasks;
 using Alba;
 using SoftwareCenterApi.Vendors;
+using SoftwareCenterApi.Vendors.Models;
 
 namespace SoftwareCenterApiTests.Vendors;
+
+[Trait("Category", "System")]
 public class CanAddAVendor
 {
 
