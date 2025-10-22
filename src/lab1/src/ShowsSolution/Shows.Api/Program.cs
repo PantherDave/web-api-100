@@ -1,14 +1,20 @@
 using Marten;
+using Shows.Api.Shows;
+using Shows.Api.Shows.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+builder.Services.AddSingleton<TimeProvider>(_ => TimeProvider.System);
 builder.Services.AddControllers();
 // This removes the Server header that says "Kestrel"
 builder.WebHost.ConfigureKestrel(serverOptions => { serverOptions.AddServerHeader = false; });
 
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
+
+builder.Services.AddScoped<ShowCreateRequestValidator>();
+builder.Services.AddSingleton<IProvideUniqueIds, SystemUniqueIdProvider>();
 
 var connectionString = builder.Configuration.GetConnectionString("db") ?? 
                        throw new Exception("Need a connection string");
