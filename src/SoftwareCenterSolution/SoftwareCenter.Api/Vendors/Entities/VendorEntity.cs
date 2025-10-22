@@ -1,12 +1,15 @@
-﻿using SoftwareCenterApi.Vendors.Models;
+﻿using SoftwareCenter.Api.Vendors.Models;
 
-namespace SoftwareCenterApi.Vendors.Entities;
+namespace SoftwareCenter.Api.Vendors.Entities;
 
-// what I'm actually storing in the db
+// what I'm actually storing in the database
 public class VendorEntity
 {
     public Guid Id { get; set; }
     public string Name { get; set; } = string.Empty;
     public VendorPointOfContact PointOfContact { get; set; } = new();
-    // who created this?
+    // who created this??
 }
+
+
+

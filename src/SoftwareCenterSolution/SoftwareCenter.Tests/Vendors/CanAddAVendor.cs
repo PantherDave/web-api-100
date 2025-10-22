@@ -1,37 +1,30 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿
 using Alba;
-using SoftwareCenterApi.Vendors;
-using SoftwareCenterApi.Vendors.Models;
+using SoftwareCenter.Api.Vendors.Models;
 
-namespace SoftwareCenterApiTests.Vendors;
-
+namespace SoftwareCenter.Tests.Vendors;
 [Trait("Category", "System")]
+
 public class CanAddAVendor
 {
 
     [Fact]
-    public async Task AddingAVendor() 
+    public async Task AddingAVendor()
     {
         var host = await AlbaHost.For<Program>();
 
-        var vendorPointOfContact = new VendorPointOfContact
-        {
-            Name = "Satya Nadella",
-            Email = "satya@microsoft.com",
-            Phone = "555-555-MSFT"
-        };
-
-        var vendorToAdd = new VendorDetailsModel
+        var vendorToAdd = new VendorCreateModel
         {
             Name = "Microsoft",
-            PointOfContact = vendorPointOfContact,
+            PointOfContact = new VendorPointOfContact
+            {
+                Name = "Satya Nadella",
+                EMail = "satya@microsoft.com",
+                Phone = "800-big-corp"
+            }
         };
 
-        var postResponse = await host.Scenario(api => 
+        var postResponse = await host.Scenario(api =>
         {
             api.Post.Json(vendorToAdd).ToUrl("/vendors");
             api.StatusCodeShouldBe(201);
@@ -41,18 +34,30 @@ public class CanAddAVendor
 
         Assert.NotNull(postEntityReturned);
 
-        Assert.True(postEntityReturned.Id != Guid.Empty);
+        Assert.True(postEntityReturned.Id != Guid.Empty); 
         Assert.Equal(postEntityReturned.Name, vendorToAdd.Name);
         Assert.Equal(postEntityReturned.PointOfContact, vendorToAdd.PointOfContact);
 
-        var getResponse = await host.Scenario(api => 
+
+        var getResponse = await host.Scenario(api =>
         {
             api.Get.Url($"/vendors/{postEntityReturned.Id}");
             api.StatusCodeShouldBeOk();
+
         });
 
         var getEntityReturned = getResponse.ReadAsJson<VendorDetailsModel>();
         Assert.NotNull(getEntityReturned);
         Assert.Equal(postEntityReturned, getEntityReturned);
     }
+   // adding a vendor returns a success status code (probably a 201)
+
+    // adding a vendor saves it to the database, and we can verify that.
+
+    // only managers of the software center can do this.
+
+    // employees that aren't managers get a 403
+
+    // non-authenticated users get a 401
+
 }
