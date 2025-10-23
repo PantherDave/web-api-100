@@ -1,11 +1,23 @@
 
 using Marten;
+using SoftwareCenter.Api.CatalogItems;
+using SoftwareCenter.Api.CatalogItems.Entities;
 using SoftwareCenter.Api.Vendors;
+using SoftwareCenter.Api.Vendors.Entities;
 using SoftwareCenter.Api.Vendors.Models;
+using SoftwareCenter.Api.Vendors.VendorManagement;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddAuthentication().AddJwtBearer();
 // Add services to the container.
+builder.Services.AddAuthorizationBuilder()
+    .AddPolicy("software-center-manager", pol =>
+    {
+        // you can do whatever here. look them up in your database, whatever.
+        pol.RequireRole("SoftwareCenter");
+        pol.RequireRole("Manager");
+    });
 
 builder.Services.AddControllers(); // going to eat some of the time to start this api, and use some memory.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
@@ -15,7 +27,7 @@ builder.Services.AddOpenApi();
 
 // ask my environment for the connection string to my database
 
-var connectionString = builder.Configuration.GetConnectionString("software") ?? 
+var connectionString = builder.Configuration.GetConnectionString("software") ??
     throw new Exception("No software connection string found!");
 
 
@@ -32,6 +44,8 @@ var connectionString = builder.Configuration.GetConnectionString("software") ??
 builder.Services.AddMarten(config =>
 {
     config.Connection(connectionString);
+    config.RegisterDocumentType<VendorEntity>();
+    config.RegisterDocumentType<CatalogItem>();
 }).UseLightweightSessions();
 // It will provide an object that implements A context class.
 // IDocumentSession
@@ -42,8 +56,9 @@ builder.Services.AddMarten(config =>
 builder.Services.AddVendorServices();
 
 builder.Services.AddScoped<IManageVendors, MartenPostgresVendorManager>();
+builder.Services.AddHttpContextAccessor();
 
-
+builder.Services.AddCatalogItems();
 var app = builder.Build();
 // after this line is configuring the HTTP "middleware" - how are actual requests and responses 
 // generated.
@@ -51,11 +66,12 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi(); 
+    app.MapOpenApi();
 }
 
+app.UseAuthentication();
 app.UseAuthorization();
-
+app.MapCatalogItems();
 app.MapControllers(); // this uses .NET reflection to scan your application and read those
 // routing attributes and create the "routing table" - phone book.
 // Current Route Table:
@@ -69,6 +85,8 @@ app.MapControllers(); // this uses .NET reflection to scan your application and 
 // GET requests to /vendors/{id} where id loooks like a Guid
 //  - create the VendorsController
 //  - call the GetVendorById method with that id from the url.
+
+
 
 app.Run(); // kestrel web server 
 
